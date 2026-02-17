@@ -38,6 +38,15 @@ function db_methods:get(tag)
 	error("sqlite error")
 end
 
+function db_methods:cleanup()
+	local s, err = dbf:prepare("DELETE FROM pastes WHERE created < (unixepoch() - unixepoch('now', '-90 days'))")
+	assert(s, err)
+	local rv = s:step()
+	if rv ~= sqlite3.DONE then
+		error(rv)
+	end
+end
+
 local M = {}
 
 M.init = function(dbf)
@@ -47,11 +56,12 @@ CREATE TABLE IF NOT EXISTS pastes (
 	tag TEXT UNIQUE,
 	ext TEXT,
 	mime TEXT,
+	created INT,
 	data BLOB
 )
 	]=])
 	assert(rv == sqlite3.OK, "init error")
-	local putstmt, err = dbf:prepare("INSERT INTO pastes (tag, data) VALUES (?, ?)")
+	local putstmt, err = dbf:prepare("INSERT INTO pastes (tag, created, data) VALUES (?, unixepoch(), ?)")
 	assert(putstmt, err)
 	local getstmt, err = dbf:prepare("SELECT id, tag, ext, mime, data FROM pastes WHERE tag == ?")
 	assert(getstmt, err)

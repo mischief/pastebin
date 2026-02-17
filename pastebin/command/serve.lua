@@ -2,6 +2,7 @@ local db = require("pastebin.db")
 local privsep = require("pastebin.privsep")
 local ext = require("pastebin.ext")
 local router = require("pastebin.router")
+local cqueues = require("cqueues")
 local http_server = require("http.server")
 local http_headers = require("http.headers")
 
@@ -57,12 +58,15 @@ end
 
 local M = {}
 M.run = function(settings)
+	local cq = cqueues.new()
+
 	local rt = router.new()
 	rt:handle("GET /(%w+)", getpaste)
 	rt:handle("POST /", putpaste)
 	rt:handle("GET /", home)
 
 	local myserver = assert(http_server.listen({
+		cq = cq,
 		host = "0.0.0.0",
 		port = settings.port,
 
@@ -94,8 +98,15 @@ M.run = function(settings)
 
 	myserver.db = assert(db.new(settings.db))
 
+	cq:wrap(function()
+		while true do
+			cqueues.sleep(60 * 60 * 24)
+			myserver.db:cleanup()
+		end
+	end)
+
 	-- Start the main server loop
-	assert(myserver:loop())
+	assert(cq:loop())
 end
 
 return M

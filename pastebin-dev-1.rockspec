@@ -8,9 +8,14 @@ description = {
 	license = "MIT",
 }
 
+supported_platforms = {
+	"openbsd",
+}
+
 dependencies = {
 	"luaposix",
 	"http",
+	"lsqlite3",
 }
 
 build = {
