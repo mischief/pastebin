@@ -42,7 +42,7 @@ local function putpaste(server, stream, headers)
 	res_headers:append("content-type", "text/plain")
 
 	assert(stream:write_headers(res_headers, false, 30))
-	assert(stream:write_chunk(string.format("http://%s/%s\n", host, tag)))
+	assert(stream:write_chunk(string.format("http://%s/%s\n", host, tag), true, 30))
 end
 
 local function getpaste(server, stream, headers, tag)
