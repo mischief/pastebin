@@ -8,6 +8,8 @@ local http_headers = require("http.headers")
 
 local dox = [=[
 a shitty pastebin
+
+/usr/games/fortune | curl --data-binary @- https://p.offblast.org
 ]=]
 
 local function home(server, stream, headers)
