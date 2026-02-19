@@ -185,5 +185,7 @@ luaopen_pastebin_ext(lua_State *L)
 	lua_setfield(L, -2, "EX_USAGE");
 	lua_pushinteger(L, EX_OSERR);
 	lua_setfield(L, -2, "EX_OSERR");
+	lua_pushinteger(L, EX_NOPERM);
+	lua_setfield(L, -2, "EX_NOPERM");
 	return 1;
 }

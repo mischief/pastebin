@@ -1,4 +1,10 @@
+local ext = require("pastebin.ext")
 local getopt = require("posix.unistd").getopt
+
+local commandtab = {
+	serve = require("pastebin.command.serve"),
+	sysinit = require("pastebin.command.sysinit"),
+}
 
 local settings = {
 	privsep = true,
@@ -44,7 +50,7 @@ for r, optarg, optind in getopt(arg, "hPd:p:u:g") do
 	if r == "?" then
 		putsf(io.stderr, "unrecognized option: %s", arg[optind - 1])
 		usage(io.stderr)
-		os.exit(64)
+		os.exit(ext.EX_USAGE)
 	end
 
 	last_index = optind
@@ -54,16 +60,9 @@ end
 if last_index > #arg then
 	putsf(io.stderr, "missing command")
 	usage(io.stderr)
-	os.exit(64)
-end
-
-local commandnames = { "sysinit", "serve" }
-local commandtab = {}
-
-for _, k in ipairs(commandnames) do
-	local m = require("pastebin.command." .. k)
-	commandtab[k] = m
+	os.exit(ext.EX_USAGE)
 end
 
 local command = arg[last_index]
-commandtab[command].run(settings)
+local rv = commandtab[command].run(settings)
+os.exit(rv or 0)
