@@ -39,10 +39,8 @@ function db_methods:get(tag)
 end
 
 function db_methods:cleanup()
-	local s, err = dbf:prepare("DELETE FROM pastes WHERE created < (unixepoch() - unixepoch('now', '-90 days'))")
-	assert(s, err)
-	local rv = s:step()
-	if rv ~= sqlite3.DONE then
+	local rv = self.db:exec("DELETE FROM pastes WHERE created < (unixepoch() - unixepoch('now', '-90 days'))")
+	if rv ~= sqlite3.OK then
 		error(rv)
 	end
 end
